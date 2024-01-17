@@ -4,7 +4,7 @@ import tensorflow as tf
 from PIL import Image
 import numpy as np
 import requests
-
+ 
 # # URL del modelo en GitHub
 # model_url = 'https://github.com/AlvaroPerezLopez/deteccion-de-fruta/raw/main/model9.keras'
 
