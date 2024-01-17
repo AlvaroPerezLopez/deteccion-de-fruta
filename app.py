@@ -1,34 +1,42 @@
-# app.py
 import streamlit as st
-from PIL import Image
 import tensorflow as tf
-from tensorflow.keras.preprocessing import image
-from tensorflow.keras.applications.inception_v3 import preprocess_input, decode_predictions
+from PIL import Image
+from tensorflow.keras.applications.mobilenet_v2 import preprocess_input, decode_predictions
 import numpy as np
 
-# Cargar el modelo
-model = tf.keras.models.load_model('model9.keras')
+# Cargar el modelo9 en el momento adecuado
+model9_path = 'model9.keras'
 
-st.title('Detención de Frutas')
+# Función para cargar el modelo9
+@st.cache(allow_output_mutation=True)
+def load_model():
+    return tf.keras.models.load_model(model9_path)
 
-# Interfaz para subir una imagen
-uploaded_file = st.file_uploader("Elige una imagen de fruta...", type="jpg")
+# Llamada a la función para cargar el modelo9
+model9 = load_model()
 
-if uploaded_file is not None:
-    # Mostrar la imagen subida
-    st.image(uploaded_file, caption='Imagen subida', use_column_width=True)
-
-    # Preprocesar la imagen para realizar la predicción
-    img = Image.open(uploaded_file)
-    img = img.resize((224, 224))
-    img_array = image.img_to_array(img)
+# Función para realizar la predicción
+def predict(image_path, model):
+    img = Image.open(image_path)
+    img = img.resize((244, 244))
+    img_array = np.array(img)
     img_array = np.expand_dims(img_array, axis=0)
     img_array = preprocess_input(img_array)
-
-    # Realizar la predicción
     predictions = model.predict(img_array)
-    decoded_predictions = decode_predictions(predictions, top=3)[0]
+    return predictions
 
-    st.write("\n\nPredicciones:")
-    for i, (imagenet_id, label, score) in enumerate(decoded_predictions):
-        st.write(f"{i + 1}: {label} ({score:.2f})")
+# Interfaz de usuario
+st.title("Fruit Detection App")
+
+uploaded_file = st.file_uploader("Choose a fruit image...", type="jpg")
+
+if uploaded_file is not None:
+    st.image(uploaded_file, caption="Uploaded Image.", use_column_width=True)
+    st.write("")
+    st.write("Classifying...")
+
+    # Hacer la predicción
+    predictions = predict(uploaded_file, model9)
+
+    st.write("Prediction:")
+    st.write(predictions)
