@@ -1,5 +1,5 @@
-Python: 3.10.12
-Numpy: 1.23.5
-streamlit: 1.30.0
-PIL (Pillow): 9.4.0
-TensorFlow: 2.15.0
+python==3.10.12
+numpy==1.23.5
+streamlit==1.30.0
+Pillow==9.4.0
+tensorflow==2.15.0
