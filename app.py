@@ -1,18 +1,24 @@
+import os
 import streamlit as st
 import tensorflow as tf
 from PIL import Image
-from tensorflow.keras.applications.mobilenet_v2 import preprocess_input, decode_predictions
 import numpy as np
+import requests
 
-st.set_option('deprecation.showfileUploaderEncoding', False)
-
-# Cargar el modelo9 en el momento adecuado
-model9_path = 'model9.keras'
+# URL del modelo en GitHub
+model_url = 'https://github.com/AlvaroPerezLopez/deteccion-de-fruta/raw/main/model9.keras'
 
 # Función para cargar el modelo9
-@st.cache(allow_output_mutation=True)
+@st.cache_data()
 def load_model():
-    return tf.keras.models.load_model(model9_path)
+    # Comprobar si el modelo ya está descargado
+    if not os.path.exists('model9.keras'):
+        # Descargar el modelo desde GitHub
+        response = requests.get(model_url)
+        with open('model9.keras', 'wb') as f:
+            f.write(response.content)
+
+    return tf.keras.models.load_model('model9.keras')
 
 # Llamada a la función para cargar el modelo9
 model9 = load_model()
@@ -23,13 +29,14 @@ def predict(image_path, model):
     img = img.resize((244, 244))
     img_array = np.array(img)
     img_array = np.expand_dims(img_array, axis=0)
-    img_array = preprocess_input(img_array)
+    img_array = tf.keras.applications.mobilenet_v2.preprocess_input(img_array)
     predictions = model.predict(img_array)
     return predictions
 
 # Interfaz de usuario
 st.title("Fruit Detection App")
 
+# Este código solo se ejecutará cuando la aplicación no se esté construyendo en Netlify
 uploaded_file = st.file_uploader("Choose a fruit image...", type="jpg")
 
 if uploaded_file is not None:
