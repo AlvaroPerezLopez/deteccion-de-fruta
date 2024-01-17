@@ -4,6 +4,8 @@ from PIL import Image
 from tensorflow.keras.applications.mobilenet_v2 import preprocess_input, decode_predictions
 import numpy as np
 
+st.set_option('deprecation.showfileUploaderEncoding', False)
+
 # Cargar el modelo9 en el momento adecuado
 model9_path = 'model9.keras'
 
