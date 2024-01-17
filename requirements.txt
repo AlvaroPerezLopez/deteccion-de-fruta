@@ -3,4 +3,3 @@ tensorflow
 Pillow
 numpy
 image
-tensorflow.keras.applications.inception_v3
