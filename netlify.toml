@@ -2,3 +2,7 @@
   from = "/*"
   to = "/app.html"
   status = 200
+
+[build]
+  command = "streamlit run --server.enableCORS false app.py"
+  publish = "."
