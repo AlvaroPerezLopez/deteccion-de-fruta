@@ -4,7 +4,7 @@ from PIL import Image
 import numpy as np
 
 # Cargar el modelo TensorFlow Lite desde el archivo local
-tflite_model_path = "path/to/compressed_model9_tf.tflite"
+tflite_model_path = "https://github.com/AlvaroPerezLopez/deteccion-de-fruta/blob/main/compressed_model9_tf.tflite"
 tflite_model = tf.lite.Interpreter(model_path=tflite_model_path)
 tflite_model.allocate_tensors()
 
