@@ -46,14 +46,14 @@ def predict(image_path):
 st.title("97% Accuracy Fruit Detection App")
 
 # Este código se ejecutará cada vez que haya un cambio en uploaded_file
-uploaded_file = st.file_uploader("# Choose a fruit image (Apple, Banana, Grapes, Kiwi, Mango, Orange, Pineapple, Sugerapple or Watermelon)", type="jpg", key="fruit_image_upload")
+uploaded_file = st.file_uploader("# Choose a fruit image (Apple, Banana, Grapes, Kiwi, Mango, Orange, Pineapple, Sugerapple or Watermelon)", type=["jpg", "png"], key="fruit_image_upload")
 
 if uploaded_file is not None:
     # Crear dos columnas
     col1, col2 = st.columns([2, 1])
 
     # Mostrar la imagen en la primera columna
-    col1.image(uploaded_file, caption="Uploaded Image.", use_column_width=True)
+    col1.image(uploaded_file, caption="Uploaded Image.", use_column_width=True, width=400)
 
     # Hacer la predicción y mostrar "Classifying..." en la segunda columna
     with col2:
