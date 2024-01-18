@@ -1,86 +1,62 @@
-import os
 import streamlit as st
 import tensorflow as tf
 from PIL import Image
 import numpy as np
-import requests
- 
-# # URL del modelo en GitHub
-# model_url = 'https://github.com/AlvaroPerezLopez/deteccion-de-fruta/raw/main/model9.keras'
 
-# # Función para cargar el modelo9
-# @st.cache_data()
-# def load_model():
-#     # Comprobar si el modelo ya está descargado
-#     if not os.path.exists('model9.keras'):
-#         # Descargar el modelo desde GitHub
-#         response = requests.get(model_url)
-#         with open('model9.keras', 'wb') as f:
-#             f.write(response.content)
+# URL del modelo comprimido en formato TensorFlow Lite
+tflite_model_url = "https://github.com/AlvaroPerezLopez/deteccion-de-fruta/raw/main/compressed_model9_tf.tflite"
 
-#     return tf.keras.models.load_model('model9.keras')
+# Función para realizar la predicción con el modelo TensorFlow Lite
+def predict_tflite(image_path, interpreter):
+    img = Image.open(image_path).resize((224, 224))
+    img_array = np.array(img)
+    img_array = np.expand_dims(img_array, axis=0)
+    img_array = tf.keras.applications.mobilenet_v2.preprocess_input(img_array)
 
-# # Llamada a la función para cargar el modelo9
-# model9 = load_model()
+    # Obtener los detalles del input y output del modelo TensorFlow Lite
+    input_details = interpreter.get_input_details()
+    output_details = interpreter.get_output_details()
 
-# # Función para realizar la predicción
-# def predict(image_path, model):
-#     img = Image.open(image_path)
-#     img = img.resize((244, 244))
-#     img_array = np.array(img)
-#     img_array = np.expand_dims(img_array, axis=0)
-#     img_array = tf.keras.applications.mobilenet_v2.preprocess_input(img_array)
-#     predictions = model.predict(img_array)
-#     return predictions
+    # Realizar la inferencia
+    interpreter.set_tensor(input_details[0]['index'], img_array)
+    interpreter.invoke()
+    predictions = interpreter.get_tensor(output_details[0]['index'])
 
-# # Interfaz de usuario
-# st.title("Fruit Detection App")
+    return predictions
 
-# # Este código solo se ejecutará cuando la aplicación no se esté construyendo en Netlify
-# uploaded_file = st.file_uploader("Choose a fruit image...", type="jpg")
+# Interfaz de usuario
+st.title("97% Accuracy Fruit Detection App")
 
-# if uploaded_file is not None:
-#     st.image(uploaded_file, caption="Uploaded Image.", use_column_width=True)
-#     st.write("")
-#     st.write("Classifying...")
-
-#     # Hacer la predicción
-#     predictions = predict(uploaded_file, model9)
-
-#     st.write("Prediction:")
-#     st.write(predictions)
-
-# app.py
-import streamlit as st
-from PIL import Image
-import tensorflow as tf
-from tensorflow.keras.preprocessing import image
-from tensorflow.keras.applications.inception_v3 import preprocess_input, decode_predictions
-import numpy as np
-
-# Cargar el modelo
-model = tf.keras.models.load_model('model9.keras')
-
-st.title('Detención de Frutas')
-
-# Interfaz para subir una imagen
-uploaded_file = st.file_uploader("Elige una imagen de fruta...", type="jpg")
+# Este código se ejecutará cada vez que haya un cambio en uploaded_file
+uploaded_file = st.file_uploader("# Choose a fruit image (Apple, Banana, Grapes, Kiwi, Mango, Orange, Pineapple, Sugerapple or Watermelon)", type="jpg", key="fruit_image_upload")
 
 if uploaded_file is not None:
-    # Mostrar la imagen subida
-    st.image(uploaded_file, caption='Imagen subida', use_column_width=True)
+    # Descargar el modelo TensorFlow Lite desde la URL
+    interpreter = None
+    with st.spinner("Loading TensorFlow Lite model..."):
+        tflite_model_content = st.net.download_url_to_bytes(tflite_model_url).content
+        interpreter = tf.lite.Interpreter(model_content=tflite_model_content)
+        interpreter.allocate_tensors()
 
-    # Preprocesar la imagen para realizar la predicción
-    img = Image.open(uploaded_file)
-    img = img.resize((224, 224))
-    img_array = image.img_to_array(img)
-    img_array = np.expand_dims(img_array, axis=0)
-    img_array = preprocess_input(img_array)
+    # Crear dos columnas
+    col1, col2 = st.columns([2, 1])
 
-    # Realizar la predicción
-    predictions = model.predict(img_array)
-    decoded_predictions = decode_predictions(predictions, top=3)[0]
+    # Mostrar la imagen en la primera columna
+    col1.image(uploaded_file, caption="Uploaded Image.", use_column_width=True)
 
-    st.write("\n\nPredicciones:")
-    for i, (imagenet_id, label, score) in enumerate(decoded_predictions):
-        st.write(f"{i + 1}: {label} ({score:.2f})")
+    # Hacer la predicción y mostrar "Classifying..." en la segunda columna
+    with col2:
+        # Mostrar "Classifying..." antes de la predicción
+        st.markdown("## Classifying...")
+
+        # Hacer la predicción con el modelo TensorFlow Lite
+        predictions = predict_tflite(uploaded_file, interpreter)
+
+        # Obtener el índice de la etiqueta predicha
+        predicted_label_index = np.argmax(predictions)
+
+        # Obtener el nombre de la etiqueta usando el índice
+        predicted_label_name = label_names[predicted_label_index]
+
+        # Mostrar la predicción con texto más grande usando Markdown
+        st.markdown(f"## Prediction:\n\n## {predicted_label_name}")
