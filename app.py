@@ -16,7 +16,6 @@ tflite_model_content = BytesIO(response.content)
 try:
     tflite_model = tf.lite.Interpreter(model_content=tflite_model_content.read())
     tflite_model.allocate_tensors()
-    st.success("Model loaded successfully.")
 except Exception as e:
     st.error(f"Error loading the model: {e}")
     st.stop()
