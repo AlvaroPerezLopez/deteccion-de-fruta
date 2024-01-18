@@ -24,8 +24,14 @@ except Exception as e:
 label_names = ["Apple", "Banana", "Grapes", "Kiwi", "Mango", "Orange", "Pineapple", "Sugerapple", "Watermelon"]
 
 # Función para realizar la predicción
+# Función para realizar la predicción
 def predict(image_path):
     img = Image.open(image_path)
+
+    # Convertir la imagen a modo 'RGB' (si es necesario)
+    if img.mode != 'RGB':
+        img = img.convert('RGB')
+
     img = img.resize((224, 224))
     img_array = np.array(img)
     img_array = np.expand_dims(img_array, axis=0)
@@ -53,7 +59,7 @@ if uploaded_file is not None:
     col1, col2 = st.columns([2, 1])
 
     # Mostrar la imagen en la primera columna
-    col1.image(uploaded_file, caption="Uploaded Image.", use_column_width=True, width=200)
+    col1.image(uploaded_file, caption="Uploaded Image.", use_column_width=True)
 
     # Hacer la predicción y mostrar "Classifying..." en la segunda columna
     with col2:
