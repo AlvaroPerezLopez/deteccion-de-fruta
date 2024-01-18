@@ -2,11 +2,24 @@ import streamlit as st
 import tensorflow as tf
 from PIL import Image
 import numpy as np
+import requests
+from io import BytesIO
 
-# Cargar el modelo TensorFlow Lite desde el archivo local
-tflite_model_path = "https://github.com/AlvaroPerezLopez/deteccion-de-fruta/blob/main/compressed_model9_tf.tflite"
-tflite_model = tf.lite.Interpreter(model_path=tflite_model_path)
-tflite_model.allocate_tensors()
+# Ruta al modelo TensorFlow Lite
+tflite_model_url = 'https://github.com/AlvaroPerezLopez/deteccion-de-fruta/raw/main/compressed_model9_tf.tflite'
+
+# Descargar el modelo en memoria
+response = requests.get(tflite_model_url)
+tflite_model_content = BytesIO(response.content)
+
+# Intenta cargar el modelo
+try:
+    tflite_model = tf.lite.Interpreter(model_content=tflite_model_content.read())
+    tflite_model.allocate_tensors()
+    st.success("Model loaded successfully.")
+except Exception as e:
+    st.error(f"Error loading the model: {e}")
+    st.stop()
 
 # Lista de nombres de etiquetas en el orden correcto
 label_names = ["Apple", "Banana", "Grapes", "Kiwi", "Mango", "Orange", "Pineapple", "Sugerapple", "Watermelon"]
