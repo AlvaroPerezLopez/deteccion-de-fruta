@@ -53,7 +53,7 @@ if uploaded_file is not None:
     col1, col2 = st.columns([2, 1])
 
     # Mostrar la imagen en la primera columna
-    col1.image(uploaded_file, caption="Uploaded Image.", use_column_width=True, width=400)
+    col1.image(uploaded_file, caption="Uploaded Image.", use_column_width=True, width=200)
 
     # Hacer la predicción y mostrar "Classifying..." en la segunda columna
     with col2:
